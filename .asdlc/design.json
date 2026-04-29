@@ -1,0 +1,25 @@
+{
+  "overview": "A single-component microservice architecture consisting of a lightweight HTTP API that returns a static greeting message. The service exposes a REST endpoint accessible over HTTP for connectivity testing and health verification. No external dependencies or data persistence required.",
+  "requirements": [
+    "The API must respond with 'Hello, World!' message when called",
+    "The API must return HTTP 200 status code for successful requests",
+    "The API must be accessible over HTTP protocol",
+    "The API must support standard HTTP GET requests",
+    "The API must be testable using common tools like curl and web browsers",
+    "The API must include a /health endpoint for readiness checks"
+  ],
+  "components": [
+    {
+      "name": "hello-api",
+      "componentType": "service",
+      "language": "Go",
+      "dependsOn": [],
+      "entrypoint": "deployment/service",
+      "buildpack": "docker",
+      "appPath": "/hello-api",
+      "openAPISpec": "openapi: 3.0.3\ninfo:\n  title: Hello World API\n  description: A simple API that returns a greeting message for connectivity testing\n  version: 1.0.0\nservers:\n  - url: http://localhost:9090\n    description: Local development server\npaths:\n  /:\n    get:\n      summary: Get hello world message\n      description: Returns a simple greeting message to confirm the service is running\n      operationId: getHello\n      responses:\n        '200':\n          description: Successful response\n          content:\n            application/json:\n              schema:\n                type: object\n                properties:\n                  message:\n                    type: string\n                    example: Hello, World!\n                required:\n                  - message\n  /health:\n    get:\n      summary: Health check endpoint\n      description: Returns the health status of the service\n      operationId: healthCheck\n      responses:\n        '200':\n          description: Service is healthy\n          content:\n            application/json:\n              schema:\n                type: object\n                properties:\n                  status:\n                    type: string\n                    example: ok\n                required:\n                  - status",
+      "componentAgentInstructions": "Implement a minimal HTTP API service in Go using the standard net/http package. The service must listen on port 9090. Create two endpoints: (1) GET / that returns JSON {\"message\":\"Hello, World!\"} with status 200, and (2) GET /health that returns JSON {\"status\":\"ok\"} with status 200. Use json.Marshal or json.NewEncoder to properly serialize responses. Set Content-Type header to application/json for all responses. Handle errors gracefully and log any issues to stdout. The main.go file should be in the root of /hello-api directory. Use http.HandleFunc to register routes and http.ListenAndServe to start the server. Ensure the server starts cleanly and logs the listening port. Create a Dockerfile with multi-stage build: first stage uses golang:1.21 to build the binary, second stage uses alpine:latest as runtime with the compiled binary. Expose port 9090 in the Dockerfile. The service should have no external dependencies beyond the Go standard library. Include proper error handling for JSON marshaling failures. Log all incoming requests with method and path for observability."
+    }
+  ],
+  "sourceSpec": "spec-v1"
+}
